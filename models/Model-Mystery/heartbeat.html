@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Heartbeat Visualization</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #0a0a1a;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        #container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            box-shadow: 0 0 20px rgba(0, 180, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: rgba(0, 220, 255, 0.7);
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .task-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: rgba(0, 220, 255, 0.9);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+        }
+        .task-icon {
+            margin-right: 8px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            background: rgba(0, 60, 100, 0.6);
+        }
+        .legend {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            background: rgba(0, 20, 40, 0.7);
+            padding: 8px;
+            border-radius: 4px;
+            z-index: 10;
+            font-size: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="mainCanvas" width="400" height="400"></canvas>
+        <div class="info">Model-Mystery Heartbeat</div>
+        <div class="task-indicator">
+            <div class="task-icon" id="taskIcon"></div>
+            <span id="taskName">Text Understanding</span>
+        </div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #00ccff;"></div>
+                <span>Understanding</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #4dff88;"></div>
+                <span>Generation</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ffcc00;"></div>
+                <span>Reasoning</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff66cc;"></div>
+                <span>Creativity</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('mainCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Task icons (using emoji and symbols)
+            const taskIcons = {
+                understanding: '👁️',
+                knowledge: '📚',
+                reasoning: '⚙️', 
+                creativity: '💡',
+                calculation: '🔢',
+                coding: '{ }',
+                emotion: '😊'
+            };
+
+            // Token properties
+            const MAX_TOKENS = 200;
+            const tokens = [];
+            const PULSE_FREQUENCY = 0.5; // Base frequency in Hz
+            
+            // Task state management
+            let currentTask = 'understanding';
+            let taskTransitioning = false;
+            let taskChangeTime = 0;
+            const TASK_DURATION = 5000; // ms to stay on one task
+            const taskSequence = ['understanding', 'knowledge', 'reasoning', 'creativity', 'calculation', 'coding', 'emotion'];
+            let taskIndex = 0;
+
+            // Token class
+            class Token {
+                constructor(x, y, type, velocity, size, opacity) {
+                    this.x = x;
+                    this.y = y;
+                    this.type = type;
+                    this.velocity = velocity;
+                    this.size = size;
+                    this.opacity = opacity;
+                    this.age = 0;
+                    this.lifespan = 100 + Math.random() * 100;
+                }
+                
+                update() {
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+                    this.age++;
+                    
+                    // Fade out as token ages
+                    if (this.age > this.lifespan * 0.7) {
+                        this.opacity = Math.max(0, this.opacity - 0.01);
+                    }
+                    
+                    // Grow slightly as they move
+                    if (this.age < this.lifespan * 0.3) {
+                        this.size = Math.min(8, this.size + 0.02);
+                    }
+                    
+                    return this.age < this.lifespan && this.x >= 0 && this.x <= width && this.y >= 0 && this.y <= height;
+                }
+                
+                draw(ctx) {
+                    ctx.save();
+                    
+                    // Different color based on token type
+                    switch(this.type) {
+                        case 'understanding':
+                            ctx.fillStyle = `rgba(0, 204, 255, ${this.opacity})`;
+                            break;
+                        case 'reasoning':
+                            ctx.fillStyle = `rgba(255, 204, 0, ${this.opacity})`;
+                            break;
+                        case 'creativity':
+                            ctx.fillStyle = `rgba(255, 102, 204, ${this.opacity})`;
+                            break;
+                        case 'generation':
+                            ctx.fillStyle = `rgba(77, 255, 136, ${this.opacity})`;
+                            break;
+                        default:
+                            ctx.fillStyle = `rgba(200, 200, 255, ${this.opacity})`;
+                    }
+                    
+                    // Draw token based on type
+                    if (this.type === 'reasoning') {
+                        ctx.beginPath();
+                        ctx.rect(this.x - this.size/2, this.y - this.size/2, this.size, this.size);
+                        ctx.fill();
+                    } else if (this.type === 'creativity') {
+                        ctx.beginPath();
+                        const spikes = 5;
+                        const outerRadius = this.size;
+                        const innerRadius = this.size / 2;
+                        
+                        for (let i = 0; i < spikes * 2; i++) {
+                            const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                            const angle = Math.PI / spikes * i;
+                            const x = this.x + Math.cos(angle) * radius;
+                            const y = this.y + Math.sin(angle) * radius;
+                            
+                            if (i === 0) ctx.moveTo(x, y);
+                            else ctx.lineTo(x, y);
+                        }
+                        
+                        ctx.closePath();
+                        ctx.fill();
+                    } else {
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    
+                    // Glow effect
+                    ctx.shadowColor = ctx.fillStyle;
+                    ctx.shadowBlur = 5;
+                    
+                    ctx.restore();
+                }
+            }
+            
+            // Initialize Background Grid
+            function drawGrid() {
+                ctx.save();
+                ctx.strokeStyle = 'rgba(30, 60, 80, 0.2)';
+                ctx.lineWidth = 0.5;
+                
+                const spacing = 20;
+                
+                // Vertical lines
+                for (let x = 0; x <= width; x += spacing) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, height);
+                    ctx.stroke();
+                }
+                
+                // Horizontal lines
+                for (let y = 0; y <= height; y += spacing) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+                
+                ctx.restore();
+            }
+            
+            // EKG Line for the baseline
+            let lastY = height / 2;
+            const ekgPoints = [];
+            for (let i = 0; i < width; i++) {
+                ekgPoints.push({x: i, y: height / 2});
+            }
+            
+            function updateEKG(time) {
+                // Shift all points left
+                for (let i = 0; i < ekgPoints.length - 1; i++) {
+                    ekgPoints[i].y = ekgPoints[i + 1].y;
+                }
+                
+                // Generate new point based on current task and pulse
+                const centerY = height / 2;
+                let baseAmplitude = 30;
+                let noiseAmplitude = 5;
+                let frequency = PULSE_FREQUENCY;
+                
+                switch(currentTask) {
+                    case 'reasoning':
+                        baseAmplitude = 40;
+                        noiseAmplitude = 8;
+                        frequency = PULSE_FREQUENCY * 1.3;
+                        break;
+                    case 'creativity':
+                        baseAmplitude = 45;
+                        noiseAmplitude = 12;
+                        frequency = PULSE_FREQUENCY * 0.7;
+                        break;
+                    case 'calculation':
+                        baseAmplitude = 35;
+                        noiseAmplitude = 2;
+                        frequency = PULSE_FREQUENCY * 1.5;
+                        break;
+                    case 'coding':
+                        baseAmplitude = 38;
+                        noiseAmplitude = 7;
+                        frequency = PULSE_FREQUENCY * 1.2;
+                        break;
+                    case 'knowledge':
+                        baseAmplitude = 30;
+                        noiseAmplitude = 10;
+                        frequency = PULSE_FREQUENCY * 0.9;
+                        break;
+                    case 'emotion':
+                        baseAmplitude = 42;
+                        noiseAmplitude = 15;
+                        frequency = PULSE_FREQUENCY * 0.8;
+                        break;
+                }
+                
+                // Calculate the heartbeat shape
+                const phase = time * frequency;
+                const heartbeat = Math.sin(phase * Math.PI * 2);
+                
+                // Sharp spike for the QRS complex (main spike) of the heartbeat
+                let spike = 0;
+                const modPhase = phase % 1;
+                if (modPhase > 0.1 && modPhase < 0.2) {
+                    spike = Math.pow((modPhase - 0.1) * 10, 2) * (modPhase < 0.15 ? 1 : -1) * baseAmplitude * 1.5;
+                }
+                
+                // Add some natural variation
+                const noise = (Math.random() - 0.5) * noiseAmplitude;
+                
+                // Set the new point
+                ekgPoints[ekgPoints.length - 1].y = centerY - baseAmplitude * heartbeat - spike + noise;
+                
+                return ekgPoints[ekgPoints.length - 1].y;
+            }
+            
+            function drawEKG() {
+                ctx.save();
+                ctx.strokeStyle = 'rgba(0, 220, 255, 0.6)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(ekgPoints[0].x, ekgPoints[0].y);
+                
+                for (let i = 1; i < ekgPoints.length; i++) {
+                    ctx.lineTo(ekgPoints[i].x, ekgPoints[i].y);
+                }
+                
+                ctx.stroke();
+                
+                // Add glow effect
+                ctx.strokeStyle = 'rgba(0, 220, 255, 0.2)';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+                
+                ctx.restore();
+            }
+            
+            // Generate tokens based on the EKG rhythm
+            function generateTokens(newY, time) {
+                // Generate tokens based on task and EKG position
+                const tokenTypes = ['understanding', 'reasoning', 'creativity', 'generation'];
+                
+                // Token emission rate based on EKG activity
+                const ekgActivity = Math.abs(newY - height/2) / 40;
+                const emissionRate = ekgActivity * 2;
+                
+                // Only emit tokens sometimes based on the activity
+                if (Math.random() < emissionRate && tokens.length < MAX_TOKENS) {
+                    // Different emission patterns based on task
+                    let tokenType, velX, velY, size, count;
+                    
+                    switch(currentTask) {
+                        case 'understanding':
+                            tokenType = Math.random() < 0.7 ? 'understanding' : tokenTypes[Math.floor(Math.random() * tokenTypes.length)];
+                            velX = (Math.random() - 0.5) * 2;
+                            velY = (Math.random() - 0.3) * 2;
+                            size = 2 + Math.random() * 4;
+                            count = 1 + Math.floor(Math.random() * 3);
+                            break;
+                            
+                        case 'reasoning':
+                            tokenType = Math.random() < 0.6 ? 'reasoning' : tokenTypes[Math.floor(Math.random() * tokenTypes.length)];
+                            velX = (Math.random() - 0.3) * 3;
+                            velY = (Math.random() - 0.5) * 1.5;
+                            size = 3 + Math.random() * 3;
+                            count = 1 + Math.floor(Math.random() * 2);
+                            break;
+                            
+                        case 'creativity':
+                            tokenType = Math.random() < 0.7 ? 'creativity' : tokenTypes[Math.floor(Math.random() * tokenTypes.length)];
+                            velX = (Math.random() - 0.5) * 4;
+                            velY = (Math.random() - 0.5) * 4;
+                            size = 2 + Math.random() * 5;
+                            count = 1 + Math.floor(Math.random() * 4);
+                            break;
+                            
+                        case 'calculation':
+                            tokenType = Math.random() < 0.8 ? 'reasoning' : 'understanding';
+                            velX = (Math.random() - 0.7) * 2;
+                            velY = (Math.random() - 0.5) * 1;
+                            size = 2 + Math.random() * 2;
+                            count = 1;
+                            break;
+                            
+                        case 'coding':
+                            tokenType = Math.random() < 0.5 ? 'reasoning' : 'generation';
+                            velX = (Math.random() - 0.6) * 2.5;
+                            velY = (Math.random() - 0.5) * 1.5;
+                            size = 2 + Math.random() * 3;
+                            count = 1 + Math.floor(Math.random() * 3);
+                            break;
+                            
+                        case 'knowledge':
+                            tokenType = Math.random() < 0.7 ? 'understanding' : 'reasoning';
+                            velX = (Math.random() - 0.4) * 2;
+                            velY = (Math.random() - 0.5) * 2;
+                            size = 2 + Math.random() * 3;
+                            count = 2 + Math.floor(Math.random() * 2);
+                            break;
+                            
+                        case 'emotion':
+                            tokenType = Math.random() < 0.6 ? 'creativity' : 'understanding';
+                            velX = (Math.random() - 0.5) * 3;
+                            velY = (Math.random() - 0.6) * 3;
+                            size = 3 + Math.random() * 4;
+                            count = 1 + Math.floor(Math.random() * 3);
+                            break;
+                            
+                        default:
+                            tokenType = tokenTypes[Math.floor(Math.random() * tokenTypes.length)];
+                            velX = (Math.random() - 0.5) * 2;
+                            velY = (Math.random() - 0.5) * 2;
+                            size = 2 + Math.random() * 3;
+                            count = 1;
+                    }
+                    
+                    // Create multiple tokens in a burst
+                    for (let i = 0; i < count; i++) {
+                        const variance = 10;
+                        tokens.push(new Token(
+                            width - 20 + (Math.random() - 0.5) * variance, 
+                            newY + (Math.random() - 0.5) * variance,
+                            tokenType,
+                            { x: velX - 1 - Math.random(), y: velY },
+                            size,
+                            0.7 + Math.random() * 0.3
+                        ));
+                    }
+                }
+            }
+            
+            // Task icons management
+            function updateTaskIcon() {
+                const iconElement = document.getElementById('taskIcon');
+                const taskNameElement = document.getElementById('taskName');
+                
+                iconElement.innerHTML = taskIcons[currentTask] || '?';
+                
+                // Update task name with proper formatting
+                let displayName = '';
+                switch(currentTask) {
+                    case 'understanding': displayName = 'Text Understanding'; break;
+                    case 'knowledge': displayName = 'Knowledge Retrieval'; break;
+                    case 'reasoning': displayName = 'Logical Reasoning'; break;
+                    case 'creativity': displayName = 'Creative Generation'; break;
+                    case 'calculation': displayName = 'Mathematical Analysis'; break;
+                    case 'coding': displayName = 'Code Processing'; break;
+                    case 'emotion': displayName = 'Emotional Understanding'; break;
+                    default: displayName = currentTask.charAt(0).toUpperCase() + currentTask.slice(1);
+                }
+                
+                taskNameElement.textContent = displayName;
+            }
+            
+            // Cycle through different tasks
+            function updateTask(time) {
+                if (time - taskChangeTime > TASK_DURATION) {
+                    taskIndex = (taskIndex + 1) % taskSequence.length;
+                    currentTask = taskSequence[taskIndex];
+                    taskChangeTime = time;
+                    updateTaskIcon();
+                }
+            }
+            
+            // Main animation loop
+            let lastTime = 0;
+            function animate(time) {
+                // Convert to seconds for easier calculations
+                const timeInSeconds = time / 1000;
+                
+                // Clear canvas with a slight trail effect
+                ctx.fillStyle = 'rgba(10, 10, 26, 0.3)';
+                ctx.fillRect(0, 0, width, height);
+                
+                // Draw grid
+                drawGrid();
+                
+                // Update task periodically
+                updateTask(time);
+                
+                // Update EKG line
+                const newY = updateEKG(timeInSeconds);
+                
+                // Draw EKG
+                drawEKG();
+                
+                // Generate new tokens based on EKG
+                generateTokens(newY, timeInSeconds);
+                
+                // Update and draw tokens
+                for (let i = tokens.length - 1; i >= 0; i--) {
+                    const isAlive = tokens[i].update();
+                    if (isAlive) {
+                        tokens[i].draw(ctx);
+                    } else {
+                        tokens.splice(i, 1);
+                    }
+                }
+                
+                requestAnimationFrame(animate);
+            }
+            
+            // Start the animation
+            animate(0);
+        });
+    </script>
+</body>
+</html>
