@@ -9,6 +9,16 @@
         "height": 400,
         "id": "llmHeartbeat"
       }
+    },
+    {
+      "name": "Claude-3.7-Sonnet",
+      "path": "models/Claude-3.7-Sonnet",
+      "htmlFile": "heartbeat.html",
+      "element": {
+        "width": 400,
+        "height": 400,
+        "id": "heartbeatCanvas"
+      }
     }
   ]
 }

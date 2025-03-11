@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude's LLM Heartbeat</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #111;
+            overflow: hidden;
+        }
+        canvas {
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="heartbeatCanvas" width="400" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById('heartbeatCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Configuration
+        const config = {
+            // Core pulsation rhythm
+            baseFrequency: 0.5,
+            // Token processing representation
+            tokenFlowSpeed: 2,
+            tokenCount: 150,
+            // Thought patterns
+            thoughtLayerCount: 5,
+            // Attention mechanisms
+            attentionPoints: 8,
+            attentionRadius: 120,
+            // Probability representation
+            probabilityWaves: 3,
+            // Responsiveness to input
+            responsiveness: 0,
+            // Color scheme
+            colors: {
+                background: '#0F1624',
+                tokens: ['#7EB6FF', '#5C9DFF', '#3D84FF', '#1E6BFF', '#0052FF'],
+                attention: 'rgba(126, 182, 255, 0.15)',
+                attentionCore: 'rgba(255, 255, 255, 0.8)',
+                probability: 'rgba(126, 182, 255, 0.5)',
+                thoughtLayers: ['rgba(126, 182, 255, 0.2)', 'rgba(94, 142, 206, 0.2)', 
+                                'rgba(61, 101, 156, 0.2)', 'rgba(29, 60, 107, 0.3)', 
+                                'rgba(14, 33, 66, 0.3)']
+            }
+        };
+        
+        // Tokens for processing representation
+        class Token {
+            constructor(x, y, speed, color, size) {
+                this.x = x;
+                this.y = y;
+                this.targetX = Math.random() * 400;
+                this.targetY = Math.random() * 400;
+                this.speed = speed;
+                this.color = color;
+                this.size = size;
+                this.active = Math.random() > 0.5;
+                this.activationTime = Math.random() * 100;
+            }
+            
+            update(time) {
+                // Periodically change target to simulate shifting attention
+                if (Math.random() < 0.005) {
+                    this.targetX = Math.random() * 400;
+                    this.targetY = Math.random() * 400;
+                }
+                
+                // Activate/deactivate based on rhythm
+                if (time % 100 > this.activationTime && 
+                    time % 100 < this.activationTime + 20) {
+                    this.active = true;
+                } else {
+                    this.active = Math.random() > 0.7;
+                }
+                
+                // Move toward target
+                const dx = this.targetX - this.x;
+                const dy = this.targetY - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist > 1) {
+                    this.x += dx / dist * this.speed;
+                    this.y += dy / dist * this.speed;
+                }
+                
+                // Boundary check
+                if (this.x < 0) this.x = 0;
+                if (this.x > 400) this.x = 400;
+                if (this.y < 0) this.y = 0;
+                if (this.y > 400) this.y = 400;
+            }
+            
+            draw(ctx) {
+                if (!this.active) return;
+                
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // Create tokens
+        const tokens = [];
+        for (let i = 0; i < config.tokenCount; i++) {
+            const x = Math.random() * 400;
+            const y = Math.random() * 400;
+            const speed = 0.1 + Math.random() * config.tokenFlowSpeed;
+            const colorIndex = Math.floor(Math.random() * config.colors.tokens.length);
+            const size = 1 + Math.random() * 2;
+            tokens.push(new Token(x, y, speed, config.colors.tokens[colorIndex], size));
+        }
+        
+        // Attention centers representing focus areas
+        const attentionCenters = [];
+        for (let i = 0; i < config.attentionPoints; i++) {
+            attentionCenters.push({
+                x: 150 + Math.random() * 100,
+                y: 150 + Math.random() * 100,
+                strength: 0.3 + Math.random() * 0.7,
+                speed: 0.2 + Math.random() * 0.8,
+                angle: Math.random() * Math.PI * 2
+            });
+        }
+        
+        // Main animation loop
+        function animate() {
+            const time = performance.now() / 30;
+            
+            // Clear canvas
+            ctx.fillStyle = config.colors.background;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw thought layers (expanding circles representing neural layers)
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const baseRadius = 50;
+            const pulseFactor = Math.sin(time * 0.05 * config.baseFrequency) * 0.2 + 0.8;
+            
+            for (let i = 0; i < config.thoughtLayerCount; i++) {
+                const radius = (baseRadius + i * 40) * pulseFactor;
+                ctx.fillStyle = config.colors.thoughtLayers[i];
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Update and draw attention centers
+            ctx.globalCompositeOperation = 'screen';
+            attentionCenters.forEach(center => {
+                // Move in circular patterns
+                center.angle += center.speed * 0.01;
+                const radius = 80;
+                center.x = centerX + Math.cos(center.angle) * radius;
+                center.y = centerY + Math.sin(center.angle) * radius;
+                
+                // Draw attention field
+                const gradient = ctx.createRadialGradient(
+                    center.x, center.y, 5,
+                    center.x, center.y, config.attentionRadius * center.strength
+                );
+                gradient.addColorStop(0, config.colors.attentionCore);
+                gradient.addColorStop(0.3, config.colors.attention);
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(center.x, center.y, config.attentionRadius * center.strength, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // Draw probability waves (representing token prediction)
+            ctx.globalCompositeOperation = 'source-over';
+            for (let i = 0; i < config.probabilityWaves; i++) {
+                const waveHeight = 10 + i * 5;
+                const frequency = 0.05 + i * 0.02;
+                const yOffset = 150 + i * 30;
+                
+                ctx.strokeStyle = config.colors.probability;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                for (let x = 0; x < canvas.width; x += 2) {
+                    const y = yOffset + 
+                              Math.sin(x * frequency + time * 0.1) * waveHeight * pulseFactor;
+                    
+                    if (x === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                
+                ctx.stroke();
+            }
+            
+            // Update and draw tokens
+            ctx.globalCompositeOperation = 'lighter';
+            tokens.forEach(token => {
+                token.update(time);
+                token.draw(ctx);
+            });
+            
+            // Draw central core (where final decisions/outputs emerge)
+            const coreSize = 20 * pulseFactor;
+            const coreGradient = ctx.createRadialGradient(
+                centerX, centerY, 0,
+                centerX, centerY, coreSize * 2
+            );
+            coreGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+            coreGradient.addColorStop(0.5, 'rgba(126, 182, 255, 0.5)');
+            coreGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            ctx.fillStyle = coreGradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, coreSize, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Reset composite operation
+            ctx.globalCompositeOperation = 'source-over';
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Add interactivity - change the "state" based on mouse movement
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Calculate distance from center
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const dx = mouseX - centerX;
+            const dy = mouseY - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Adjust configuration based on interaction
+            config.responsiveness = Math.min(distance / 200, 1);
+            config.baseFrequency = 0.5 + config.responsiveness * 1.5;
+            config.tokenFlowSpeed = 2 + config.responsiveness * 3;
+            
+            // Attract tokens to mouse position
+            tokens.forEach(token => {
+                if (Math.random() < 0.1) {
+                    token.targetX = mouseX + (Math.random() - 0.5) * 100;
+                    token.targetY = mouseY + (Math.random() - 0.5) * 100;
+                }
+            });
+        });
+        
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
