@@ -49,6 +49,16 @@
         "height": 400,
         "id": "gpt4oHeartbeatCanvas"
       }
+    },
+    {
+      "name": "Deepseek-V3",
+      "path": "models/Deepseek-V3",
+      "htmlFile": "heartbeat.html",
+      "element": {
+        "width": 400,
+        "height": 400,
+        "id": "heartbeatCanvas"
+      }
     }
   ]
 }
