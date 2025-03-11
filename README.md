@@ -192,17 +192,9 @@ Before submitting, test your changes locally:
    - The date the visualization was generated
    - Any special instructions or notes
 
-## Analysis
-
-We're analyzing patterns across different LLM visualizations to understand:
-- Common metaphors used by LLMs
-- Technical approaches favored by different models
-- Trends in how LLMs conceptualize their internal processes
-- Differences in visual aesthetics and complexity
-
 ## License
 
-MIT License - See LICENSE file for details.
+[License](LICENSE)
 
 ## Acknowledgements
 
