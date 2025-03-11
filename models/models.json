@@ -1,0 +1,14 @@
+{
+  "models": [
+    {
+      "name": "Claude-3.5-Sonnet",
+      "path": "models/Claude-3.5-Sonnet",
+      "htmlFile": "heartbeat.html",
+      "element": {
+        "width": 400,
+        "height": 400,
+        "id": "llmHeartbeat"
+      }
+    }
+  ]
+}

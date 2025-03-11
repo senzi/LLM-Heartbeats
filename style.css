@@ -1,0 +1,100 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #2c3e50;
+}
+
+.models-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+}
+
+.model-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    width: 400px;
+    cursor: pointer;
+}
+
+.model-card:hover {
+    transform: translateY(-5px);
+}
+
+.model-frame {
+    width: 400px;
+    height: 400px;
+    border: none;
+}
+
+.model-info {
+    padding: 15px;
+    text-align: center;
+}
+
+.model-info h2 {
+    margin: 0;
+    color: #3498db;
+}
+
+.model-detail {
+    display: none;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.model-detail.active {
+    display: block;
+}
+
+.detail-frame {
+    width: 100%;
+    height: 400px;
+    border: none;
+    margin-bottom: 20px;
+}
+
+.detail-content {
+    line-height: 1.6;
+    padding: 20px;
+}
+
+/* 应用 GitHub Markdown 样式 */
+.markdown-body {
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.back-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.back-button:hover {
+    background-color: #2980b9;
+}

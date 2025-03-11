@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #000; }
+        canvas { background: #000; }
+    </style>
+</head>
+<body>
+    <canvas id="llmHeartbeat" width="400" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById('llmHeartbeat');
+        const ctx = canvas.getContext('2d');
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = 200;
+                this.y = 200;
+                this.angle = Math.random() * Math.PI * 2;
+                this.radius = Math.random() * 80 + 40;
+                this.speed = Math.random() * 2 + 1;
+                this.size = Math.random() * 2 + 1;
+                this.life = 1;
+                this.decay = Math.random() * 0.02 + 0.015;
+            }
+
+            update() {
+                this.radius += this.speed;
+                this.life -= this.decay;
+                if (this.life <= 0) this.reset();
+            }
+
+            draw() {
+                const x = this.x + Math.cos(this.angle) * this.radius;
+                const y = this.y + Math.sin(this.angle) * this.radius;
+                ctx.fillStyle = `hsla(${180 + this.radius % 60}, 80%, 50%, ${this.life})`;
+                ctx.beginPath();
+                ctx.arc(x, y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const particles = Array.from({ length: 100 }, () => new Particle());
+        let phase = 0;
+        let thinking = 0;
+
+        function drawCore() {
+            const pulseSize = Math.sin(phase) * 10 + 30;
+            const complexity = 6;
+            
+            // Draw geometric core
+            for (let i = 0; i < complexity; i++) {
+                const rotation = phase + (Math.PI * 2 * i) / complexity;
+                ctx.beginPath();
+                ctx.strokeStyle = `hsla(200, 80%, 50%, ${0.3 + Math.sin(phase + i) * 0.2})`;
+                ctx.lineWidth = 2;
+                
+                for (let angle = 0; angle < Math.PI * 2; angle += 0.1) {
+                    const radius = pulseSize + Math.sin(angle * 3 + rotation) * 15;
+                    const x = 200 + Math.cos(angle) * radius;
+                    const y = 200 + Math.sin(angle) * radius;
+                    if (angle === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+        }
+
+        function drawThoughtWaves() {
+            const waveCount = 3;
+            for (let i = 0; i < waveCount; i++) {
+                ctx.beginPath();
+                ctx.strokeStyle = `hsla(200, 80%, 50%, ${0.2 - (i * 0.05)})`;
+                ctx.lineWidth = 1;
+                
+                for (let angle = 0; angle < Math.PI * 2; angle += 0.1) {
+                    const baseRadius = 70 + i * 30;
+                    const radius = baseRadius + Math.sin(angle * 4 + phase) * 10;
+                    const x = 200 + Math.cos(angle) * radius;
+                    const y = 200 + Math.sin(angle) * radius;
+                    if (angle === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, 400, 400);
+
+            drawCore();
+            drawThoughtWaves();
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            phase += 0.02;
+            thinking = Math.sin(phase * 0.5) * 0.5 + 0.5;
+            
+            requestAnimationFrame(animate);
+        }
+
+        // Add interactivity
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const dx = x - 200;
+            const dy = y - 200;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < 100) {
+                particles.forEach(particle => {
+                    particle.speed = 3;
+                    particle.decay = 0.03;
+                });
+            } else {
+                particles.forEach(particle => {
+                    particle.speed = Math.random() * 2 + 1;
+                    particle.decay = Math.random() * 0.02 + 0.015;
+                });
+            }
+        });
+
+        animate();
+    </script>
+</body>
+</html>
