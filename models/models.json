@@ -99,6 +99,16 @@
         "height": 400,
         "id": "llmHeartbeat"
       }
+    },
+    {
+      "name": "Gemini-2.0-Flash",
+      "path": "models/Gemini-2.0-Flash",
+      "htmlFile": "heartbeat.html",
+      "element": {
+        "width": 400,
+        "height": 400,
+        "id": "llmHeartbeat"
+      }
     }
   ]
 }
