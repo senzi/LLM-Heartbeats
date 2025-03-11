@@ -69,6 +69,16 @@
         "height": 400,
         "id": "heartbeatCanvas"
       }
+    },
+    {
+      "name": "QwQ-32B-Preview",
+      "path": "models/QwQ-32B-Preview",
+      "htmlFile": "heartbeat.html",
+      "element": {
+        "width": 400,
+        "height": 400,
+        "id": "llmHeartbeat"
+      }
     }
   ]
 }

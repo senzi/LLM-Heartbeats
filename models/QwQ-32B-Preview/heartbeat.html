@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Heartbeat Visualization</title>
+<style>
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000;
+  }
+  canvas {
+    border: 2px solid #fff;
+  }
+</style>
+</head>
+<body>
+<canvas id="canvas" width="400" height="400"></canvas>
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const radius = 150;
+  const numNodes = 50;
+  const nodes = [];
+  const connections = [];
+
+  class Node {
+    constructor(x, y) {
+      this.x = x;
+      this.y = y;
+      this.radius = 5;
+      this.color = 'hsl(' + (Math.random() * 360) + ', 100%, 50%)';
+      this.pulse = 0;
+      this.pulseSpeed = 0.1 + Math.random() * 0.2;
+    }
+
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius + this.pulse, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.globalAlpha = (Math.sin(this.pulse / 10) + 1) / 2;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    update() {
+      this.pulse += this.pulseSpeed;
+      if (this.pulse > 20) this.pulse = 0;
+    }
+  }
+
+  class Connection {
+    constructor(node1, node2) {
+      this.node1 = node1;
+      this.node2 = node2;
+      this.color = 'hsl(' + (Math.random() * 360) + ', 100%, 50%)';
+      this.opacity = 0.5;
+    }
+
+    draw() {
+      ctx.beginPath();
+      ctx.moveTo(this.node1.x, this.node1.y);
+      ctx.lineTo(this.node2.x, this.node2.y);
+      ctx.strokeStyle = this.color;
+      ctx.globalAlpha = this.opacity;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function init() {
+    for (let i = 0; i < numNodes; i++) {
+      const angle = i * (Math.PI * 2) / numNodes;
+      const x = centerX + Math.cos(angle) * radius;
+      const y = centerY + Math.sin(angle) * radius;
+      nodes.push(new Node(x, y));
+    }
+
+    for (let i = 0; i < numNodes; i++) {
+      for (let j = i + 1; j < numNodes; j++) {
+        if (Math.random() < 0.5) {
+          connections.push(new Connection(nodes[i], nodes[j]));
+        }
+      }
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw connections
+    connections.forEach(connection => {
+      connection.draw();
+    });
+
+    // Draw nodes
+    nodes.forEach(node => {
+      node.update();
+      node.draw();
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  init();
+  animate();
+</script>
+</body>
+</html>
