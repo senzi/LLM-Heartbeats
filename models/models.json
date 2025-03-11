@@ -19,6 +19,16 @@
         "height": 400,
         "id": "heartbeatCanvas"
       }
+    },
+    {
+      "name": "Claude-3.7-Sonnet-Reasoning",
+      "path": "models/Claude-3.7-Sonnet-Reasoning",
+      "htmlFile": "heartbeat.html",
+      "element": {
+        "width": 400,
+        "height": 400,
+        "id": "llmHeartbeat"
+      }
     }
   ]
 }

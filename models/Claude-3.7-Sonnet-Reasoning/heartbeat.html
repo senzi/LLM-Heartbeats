@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Heartbeat Visualization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #121212;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // LLM Heartbeat Visualization
+        
+        // Core parameters
+        let heartbeatRate = 60; // Base rate of the heartbeat
+        let pulseStrength = 0; // Current pulse strength
+        let pulseFade = 0.05; // How quickly the pulse fades
+        let pulseInterval = 1000; // Time between pulses in milliseconds
+        let lastPulseTime = 0; // Time of the last pulse
+        
+        // Token flow parameters
+        let tokens = []; // Array to store token particles
+        let tokenFlowRate = 0.8; // Rate at which new tokens are generated
+        let tokenLifespan = 120; // How long tokens exist
+        
+        // Attention wave parameters
+        let waves = []; // Array to store attention waves
+        let waveCount = 3; // Number of concurrent waves
+        
+        // Layer activity parameters
+        let layers = 6; // Number of neural network layers to represent
+        let layerActivity = []; // Activity level of each layer
+        
+        function setup() {
+            createCanvas(400, 400);
+            colorMode(HSB, 100);
+            
+            // Initialize layer activity
+            for (let i = 0; i < layers; i++) {
+                layerActivity[i] = random(20, 50);
+            }
+            
+            // Initialize waves
+            for (let i = 0; i < waveCount; i++) {
+                waves.push({
+                    radius: 0,
+                    alpha: 100,
+                    speed: random(1, 2)
+                });
+            }
+        }
+        
+        function draw() {
+            background(10, 10, 20);
+            
+            // Center of the canvas
+            let cx = width / 2;
+            let cy = height / 2;
+            
+            // Update pulse
+            if (millis() - lastPulseTime > pulseInterval) {
+                pulse();
+                lastPulseTime = millis();
+            }
+            
+            // Fade out pulse
+            pulseStrength = max(0, pulseStrength - pulseFade);
+            
+            // Draw core
+            drawCore(cx, cy);
+            
+            // Update and draw attention waves
+            updateWaves();
+            drawWaves(cx, cy);
+            
+            // Update and draw tokens
+            if (random() < tokenFlowRate) {
+                generateToken(cx, cy);
+            }
+            updateTokens();
+            drawTokens();
+            
+            // Update and draw layer activity
+            updateLayerActivity();
+            drawLayerActivity(cx, cy);
+        }
+        
+        function pulse() {
+            // Generate a pulse
+            pulseStrength = 1;
+            
+            // Add a new wave
+            waves.push({
+                radius: 0,
+                alpha: 100,
+                speed: random(1, 2.5)
+            });
+            
+            // Boost layer activity
+            for (let i = 0; i < layers; i++) {
+                layerActivity[i] += random(20, 30);
+                layerActivity[i] = min(100, layerActivity[i]);
+            }
+        }
+        
+        function drawCore(x, y) {
+            // Core glow
+            let coreSize = 40 + pulseStrength * 15;
+            let coreColor = 60 + pulseStrength * 10; // Hue shifts with pulse
+            
+            // Glow effect
+            for (let i = 5; i > 0; i--) {
+                let alpha = map(i, 0, 5, 20, 60);
+                fill(coreColor, 80, 100, alpha);
+                noStroke();
+                ellipse(x, y, coreSize + i * 8);
+            }
+            
+            // Core center
+            fill(coreColor, 80, 100, 90);
+            ellipse(x, y, coreSize);
+            
+            // Core detail
+            stroke(coreColor + 10, 60, 100, 70);
+            noFill();
+            let detail = 12;
+            for (let i = 0; i < detail; i++) {
+                let angle = map(i, 0, detail, 0, TWO_PI);
+                let len = coreSize/2 * (0.7 + 0.3 * sin(frameCount * 0.05 + i));
+                let x2 = x + cos(angle) * len;
+                let y2 = y + sin(angle) * len;
+                line(x, y, x2, y2);
+            }
+        }
+        
+        function updateWaves() {
+            // Expand and fade waves
+            for (let i = waves.length - 1; i >= 0; i--) {
+                waves[i].radius += waves[i].speed;
+                waves[i].alpha -= 0.5;
+                
+                // Remove faded waves
+                if (waves[i].alpha <= 0 || waves[i].radius > width) {
+                    waves.splice(i, 1);
+                }
+            }
+        }
+        
+        function drawWaves(x, y) {
+            // Draw attention waves
+            for (let wave of waves) {
+                noFill();
+                stroke(60, 80, 90, wave.alpha * 0.01);
+                strokeWeight(2 + pulseStrength * 2);
+                
+                // Draw wave with slight distortion to represent attention flux
+                beginShape();
+                for (let a = 0; a < TWO_PI; a += 0.1) {
+                    let noise_factor = 0.2 * sin(frameCount * 0.02 + a * 3);
+                    let r = wave.radius * (1 + noise_factor);
+                    let px = x + cos(a) * r;
+                    let py = y + sin(a) * r;
+                    vertex(px, py);
+                }
+                endShape(CLOSE);
+            }
+        }
+        
+        function generateToken(x, y) {
+            // Create a new token particle
+            let angle = random(TWO_PI);
+            let distance = random(20, 50);
+            let tokenHue = random(40, 80);
+            
+            tokens.push({
+                x: x + cos(angle) * distance,
+                y: y + sin(angle) * distance,
+                vx: cos(angle) * random(0.5, 2),
+                vy: sin(angle) * random(0.5, 2),
+                size: random(4, 10),
+                hue: tokenHue,
+                life: tokenLifespan,
+                processingState: 0 // 0-100 represents token processing completion
+            });
+        }
+        
+        function updateTokens() {
+            // Update token particles
+            for (let i = tokens.length - 1; i >= 0; i--) {
+                let token = tokens[i];
+                
+                // Move tokens
+                token.x += token.vx;
+                token.y += token.vy;
+                
+                // Process tokens
+                token.processingState += random(1, 3);
+                
+                // Reduce life
+                token.life--;
+                
+                // Remove dead tokens
+                if (token.life <= 0 || token.processingState >= 100) {
+                    tokens.splice(i, 1);
+                }
+            }
+        }
+        
+        function drawTokens() {
+            // Draw token particles
+            for (let token of tokens) {
+                let alpha = map(token.life, 0, tokenLifespan, 0, 100);
+                fill(token.hue, 80, 95, alpha);
+                noStroke();
+                
+                // Token shape changes with processing state
+                if (token.processingState < 50) {
+                    // Raw token (square)
+                    rectMode(CENTER);
+                    rect(token.x, token.y, token.size, token.size);
+                } else {
+                    // Processed token (circle)
+                    let progress = map(token.processingState, 50, 100, 0, 1);
+                    let corners = map(progress, 0, 1, 0, token.size/2);
+                    rectMode(CENTER);
+                    rect(token.x, token.y, token.size, token.size, corners);
+                }
+                
+                // Processing indicator
+                if (token.processingState < 100) {
+                    noFill();
+                    stroke(token.hue + 10, 70, 100, alpha);
+                    arc(token.x, token.y, token.size * 1.5, token.size * 1.5, 
+                        0, map(token.processingState, 0, 100, 0, TWO_PI));
+                }
+            }
+        }
+        
+        function updateLayerActivity() {
+            // Gradually reduce layer activity
+            for (let i = 0; i < layers; i++) {
+                layerActivity[i] = max(20, layerActivity[i] * 0.98);
+                
+                // Add some natural fluctuation
+                layerActivity[i] += random(-2, 2);
+                layerActivity[i] = constrain(layerActivity[i], 20, 100);
+            }
+        }
+        
+        function drawLayerActivity(x, y) {
+            // Draw neural network layer activity
+            let layerSpacing = 180 / (layers + 1);
+            let startAngle = -PI/2 - (layers-1) * layerSpacing/2 * PI/180;
+            
+            for (let i = 0; i < layers; i++) {
+                let angle = startAngle + i * layerSpacing * PI/180;
+                let distance = 70 + pulseStrength * 10;
+                let layerX = x + cos(angle) * distance;
+                let layerY = y + sin(angle) * distance;
+                
+                // Layer node
+                let size = map(layerActivity[i], 20, 100, 8, 18);
+                noStroke();
+                fill(i * 10 + 40, 70, 95, 80);
+                ellipse(layerX, layerY, size);
+                
+                // Connection to core
+                stroke(i * 10 + 40, 70, 95, 40);
+                strokeWeight(1 + layerActivity[i] * 0.03);
+                line(x, y, layerX, layerY);
+                
+                // Activity particles along connection
+                if (random() < layerActivity[i] * 0.01) {
+                    let particlePos = random();
+                    let px = x + (layerX - x) * particlePos;
+                    let py = y + (layerY - y) * particlePos;
+                    
+                    noStroke();
+                    fill(i * 10 + 40, 70, 95, 80);
+                    ellipse(px, py, 3);
+                }
+                
+                // Activity indicator
+                noFill();
+                stroke(i * 10 + 40, 70, 95, 50);
+                strokeWeight(1);
+                arc(layerX, layerY, size + 10, size + 10, 0, map(layerActivity[i], 0, 100, 0, TWO_PI));
+            }
+        }
+        
+        // Optional interactivity - pulse on mouse press
+        function mousePressed() {
+            if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
+                pulse();
+                
+                // Generate more tokens at mouse position
+                for (let i = 0; i < 5; i++) {
+                    let angle = random(TWO_PI);
+                    let distance = random(5, 15);
+                    tokens.push({
+                        x: mouseX + cos(angle) * distance,
+                        y: mouseY + sin(angle) * distance,
+                        vx: cos(angle) * random(1, 3),
+                        vy: sin(angle) * random(1, 3),
+                        size: random(4, 10),
+                        hue: random(40, 80),
+                        life: tokenLifespan,
+                        processingState: 0
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
