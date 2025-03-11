@@ -59,6 +59,16 @@
         "height": 400,
         "id": "heartbeatCanvas"
       }
+    },
+    {
+      "name": "Deepseek-R1",
+      "path": "models/Deepseek-R1",
+      "htmlFile": "heartbeat.html",
+      "element": {
+        "width": 400,
+        "height": 400,
+        "id": "heartbeatCanvas"
+      }
     }
   ]
 }
