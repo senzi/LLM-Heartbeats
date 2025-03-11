@@ -1,24 +1,52 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM 心跳可视化</title>
-    <!-- 引入 marked.js 库 -->
+    <title>LLM Heartbeats Visualization</title>
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <!-- Marked.js library -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- 引入 GitHub Markdown 样式 -->
+    <!-- GitHub Markdown CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sindresorhus/github-markdown-css@4.0.0/github-markdown.min.css">
-    <!-- 引入自定义样式表 -->
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <!-- Custom stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>LLM 心跳可视化</h1>
+    <header>
+        <div class="header-content">
+            <h1>LLM Heartbeats</h1>
+            <p class="subtitle">Visual interpretations of AI internal rhythms</p>
+        </div>
+    </header>
     
-    <div class="models-container" id="modelsContainer"></div>
+    <main>
+        <div class="models-container" id="modelsContainer"></div>
+        <div id="modelDetailContainer"></div>
+    </main>
     
-    <div id="modelDetailContainer"></div>
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 LLM Heartbeats Project | <a href="https://github.com/senzi/LLM-Heartbeats" target="_blank">GitHub</a></p>
+            <div class="badges">
+                <a href="https://github.com/senzi/LLM-Heartbeats/stargazers" target="_blank">
+                    <img src="https://img.shields.io/github/stars/senzi/LLM-Heartbeats?style=for-the-badge&logo=github&color=4F46E5&logoColor=white" alt="GitHub stars">
+                </a>
+                <a href="https://github.com/senzi/LLM-Heartbeats/network/members" target="_blank">
+                    <img src="https://img.shields.io/github/forks/senzi/LLM-Heartbeats?style=for-the-badge&logo=github&color=06B6D4&logoColor=white" alt="GitHub forks">
+                </a>
+                <img src="https://img.shields.io/badge/models-2-10B981?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0xIDE1aC0ydi02aDJ2NnptMC04aC0yVjdoMnYyeiIvPjwvc3ZnPg==" alt="Models count">
+                <img src="https://img.shields.io/badge/visitors-1K-4F46E5?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiA0LjVDNyA0LjUgMi43MyA3LjYxIDEgMTJjMS43MyA0LjM5IDYgNy41IDExIDcuNXM5LjI3LTMuMTEgMTEtNy41Yy0xLjczLTQuMzktNi03LjUtMTEtNy41ek0xMiAxN2MtMi43NiAwLTUtMi4yNC01LTVzMi4yNC01IDUtNSA1IDIuMjQgNSA1LTIuMjQgNS01IDV6bTAtOGMtMS42NiAwLTMgMS4zNC0zIDNzMS4zNCAzIDMgMyAzLTEuMzQgMy0zLTEuMzQtMy0zLTN6Ii8+PC9zdmc+" alt="Visitors">
+            </div>
+        </div>
+    </footer>
     
-    <!-- 引入自定义脚本 -->
+    <!-- Custom script -->
     <script src="scripts.js"></script>
 </body>
 </html>

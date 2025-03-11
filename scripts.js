@@ -1,16 +1,16 @@
-// 加载模型数据
+// Load model data
 async function loadModels() {
     try {
         const response = await fetch('models/models.json');
         const data = await response.json();
         return data.models;
     } catch (error) {
-        console.error('加载模型数据失败:', error);
+        console.error('Failed to load model data:', error);
         return [];
     }
 }
 
-// 渲染模型卡片
+// Render model cards
 function renderModelCards(models) {
     const container = document.getElementById('modelsContainer');
     container.innerHTML = '';
@@ -38,7 +38,7 @@ function renderModelCards(models) {
     });
 }
 
-// 显示模型详情
+// Show model detail
 async function showModelDetail(model) {
     const container = document.getElementById('modelDetailContainer');
     container.innerHTML = '';
@@ -46,18 +46,44 @@ async function showModelDetail(model) {
     const detailDiv = document.createElement('div');
     detailDiv.className = 'model-detail active';
     
+    // Create header with model name and back button
+    const detailHeader = document.createElement('div');
+    detailHeader.className = 'detail-header';
+    
+    const modelTitle = document.createElement('h2');
+    modelTitle.className = 'model-title';
+    modelTitle.textContent = model.name;
+    
     const backButton = document.createElement('button');
     backButton.className = 'back-button';
-    backButton.textContent = '返回列表';
+    backButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg> Back to Gallery';
     backButton.addEventListener('click', () => {
         detailDiv.classList.remove('active');
         document.getElementById('modelsContainer').style.display = 'flex';
+        container.style.display = 'none';
     });
+    
+    detailHeader.appendChild(backButton);
+    detailHeader.appendChild(modelTitle);
+    
+    // Create visualization section
+    const visualizationSection = document.createElement('div');
+    visualizationSection.className = 'visualization-section';
     
     const iframe = document.createElement('iframe');
     iframe.className = 'detail-frame';
     iframe.src = `${model.path}/${model.htmlFile}`;
     iframe.title = model.name;
+    
+    visualizationSection.appendChild(iframe);
+    
+    // Create explanation section
+    const explanationSection = document.createElement('div');
+    explanationSection.className = 'explanation-section';
+    
+    const explanationTitle = document.createElement('h3');
+    explanationTitle.className = 'explanation-title';
+    explanationTitle.textContent = 'Model Explanation';
     
     const content = document.createElement('div');
     content.className = 'detail-content';
@@ -65,28 +91,33 @@ async function showModelDetail(model) {
     try {
         const response = await fetch(`${model.path}/explanation.md`);
         const markdown = await response.text();
-        // 使用 marked.js 渲染 Markdown
+        // Render Markdown using marked.js
         content.className = 'detail-content markdown-body';
         content.innerHTML = marked.parse(markdown);
     } catch (error) {
-        console.error('加载说明文件失败:', error);
-        content.innerHTML = '<p>无法加载说明文件</p>';
+        console.error('Failed to load explanation file:', error);
+        content.innerHTML = '<p>Unable to load explanation file</p>';
     }
     
-    detailDiv.appendChild(backButton);
-    detailDiv.appendChild(iframe);
-    detailDiv.appendChild(content);
+    explanationSection.appendChild(explanationTitle);
+    explanationSection.appendChild(content);
+    
+    // Add all sections to the detail div
+    detailDiv.appendChild(detailHeader);
+    detailDiv.appendChild(visualizationSection);
+    detailDiv.appendChild(explanationSection);
     
     container.appendChild(detailDiv);
+    container.style.display = 'block';
     
     document.getElementById('modelsContainer').style.display = 'none';
 }
 
-// 初始化应用
+// Initialize the application
 async function initApp() {
     const models = await loadModels();
     renderModelCards(models);
 }
 
-// 页面加载完成后初始化应用
+// Initialize the application when the DOM content is loaded
 window.addEventListener('DOMContentLoaded', initApp);
