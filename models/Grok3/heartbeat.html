@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Grok's LLM Heartbeat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+    <style>
+        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #1a1a1a; }
+        canvas { border: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <script>
+        let phase = 0;
+        let nodes = [];
+
+        function setup() {
+            createCanvas(400, 400);
+            background(20);
+            // Initialize nodes representing "attention points"
+            for (let i = 0; i < 20; i++) {
+                nodes.push({
+                    x: random(width),
+                    y: random(height),
+                    baseRadius: random(5, 15),
+                    pulse: random(0.01, 0.05),
+                    hue: random(180, 360)
+                });
+            }
+        }
+
+        function draw() {
+            background(20, 20, 20, 50); // Slight fade for trails
+            translate(width / 2, height / 2);
+            rotate(phase * 0.1);
+
+            // Draw connections between nodes (attention flow)
+            stroke(255, 50);
+            strokeWeight(1);
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    let d = dist(nodes[i].x - width / 2, nodes[i].y - height / 2, 
+                                nodes[j].x - width / 2, nodes[j].y - height / 2);
+                    if (d < 100) {
+                        line(nodes[i].x - width / 2, nodes[i].y - height / 2, 
+                             nodes[j].x - width / 2, nodes[j].y - height / 2);
+                    }
+                }
+            }
+
+            // Draw pulsing nodes (token/thought pulses)
+            noStroke();
+            for (let node of nodes) {
+                let pulseSize = node.baseRadius + sin(phase + node.pulse) * 10;
+                fill(node.hue, 80, 100, 200);
+                ellipse(node.x - width / 2, node.y - height / 2, pulseSize, pulseSize);
+
+                // Small orbiting satellite (contextual memory)
+                let orbit = cos(phase * node.pulse * 2) * 20;
+                fill(255, 150);
+                ellipse(node.x - width / 2 + orbit, node.y - height / 2 + orbit * 0.5, 5, 5);
+            }
+
+            phase += 0.05; // Increment global phase for rhythm
+        }
+    </script>
+</body>
+</html>

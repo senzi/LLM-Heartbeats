@@ -79,6 +79,16 @@
         "height": 400,
         "id": "llmHeartbeat"
       }
+    },
+    {
+      "name": "Grok3",
+      "path": "models/Grok3",
+      "htmlFile": "heartbeat.html",
+      "element": {
+        "width": 400,
+        "height": 400,
+        "id": "llmHeartbeat"
+      }
     }
   ]
 }
