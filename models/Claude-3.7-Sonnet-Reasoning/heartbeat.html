@@ -45,7 +45,8 @@
         let layerActivity = []; // Activity level of each layer
         
         function setup() {
-            createCanvas(400, 400);
+            let canvas = createCanvas(400, 400);
+            canvas.id('llmHeartbeat');
             colorMode(HSB, 100);
             
             // Initialize layer activity

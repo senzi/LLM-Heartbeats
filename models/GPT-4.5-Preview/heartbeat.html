@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LLM Heartbeat Visualization</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #0e0f1a;
+    }
+    canvas {
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body>
+<script>
+let nodes = [];
+let numNodes = 8;
+let radius = 120;
+let center;
+let canvas;
+
+function setup() {
+  // 创建画布并设置ID
+  canvas = createCanvas(400, 400);
+  canvas.id('gpt45HeartbeatCanvas');
+  center = createVector(width / 2, height / 2);
+
+  // Initialize nodes positioned in a circle
+  for (let i = 0; i < numNodes; i++) {
+    let angle = TWO_PI / numNodes * i;
+    let pos = createVector(center.x + radius * cos(angle), center.y + radius * sin(angle));
+    nodes.push({pos: pos, angleOffset: random(TWO_PI)});
+  }
+}
+
+function draw() {
+  background('#0e0f1a');
+  noStroke();
+
+  let time = millis() / 1000;
+
+  // Draw connections representing attention flows
+  strokeWeight(2);
+  for (let i = 0; i < numNodes; i++) {
+    for (let j = i + 1; j < numNodes; j++) {
+      let pulse = (sin(time * 2 + dist(nodes[i].pos.x, nodes[i].pos.y, nodes[j].pos.x, nodes[j].pos.y) / 50) + 1) / 2;
+      stroke(100, 150, 255, pulse * 60);
+      line(nodes[i].pos.x, nodes[i].pos.y, nodes[j].pos.x, nodes[j].pos.y);
+    }
+  }
+
+  // Draw nodes representing concepts/tokens
+  for (let node of nodes) {
+    let pulseIntensity = (sin(time * 3 + node.angleOffset) + 1) / 2;
+    let size = map(pulseIntensity, 0, 1, 10, 25);
+    fill(100, 150 + pulseIntensity * 105, 255, 200);
+    ellipse(node.pos.x, node.pos.y, size);
+  }
+
+  // Central node representing output generation
+  let centralPulse = (sin(time * 2) + 1) / 2;
+  fill(255, 200, 100, 180 + centralPulse * 75);
+  ellipse(center.x, center.y, 35 + centralPulse * 15);
+}
+</script>
+</body>
+</html>

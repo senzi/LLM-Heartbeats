@@ -22,6 +22,9 @@
         <div class="header-content">
             <h1>LLM Heartbeats</h1>
             <p class="subtitle">Visual interpretations of AI internal rhythms</p>
+            <div class="prompt-link-container">
+                <a href="prompt.html" class="prompt-link">View the Prompt Behind All Visualizations</a>
+            </div>
         </div>
     </header>
     
@@ -41,33 +44,10 @@
                     <img src="https://img.shields.io/github/forks/senzi/LLM-Heartbeats?style=for-the-badge&logo=github&color=06B6D4&logoColor=white" alt="GitHub forks">
                 </a>
                 <img src="https://img.shields.io/badge/models-2-10B981?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0xIDE1aC0ydi06aDJ2NnptMC04aC0yVjdoMnYyeiIvPjwvc3ZnPg==" alt="Models count">
-                <div class="busuanzi-count">
-                    <span id="busuanzi_container_site_pv" style="display: inline;">
-                        <img id="visitor-badge" src="https://img.shields.io/badge/访问量-加载中-4F46E5?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiA0LjVDNyA0LjUgMi43MyA3LjYxIDEgMTJjMS43MyA0LjM5IDYgNy41IDExIDcuNXM5LjI3LTMuMTEgMTEtNy41Yy0xLjczLTQuMzktNi03LjUtMTEtNy41ek0xMiAxN2MtMi43NiAwLTUtMi4yNC01LTVzMi4yNC01IDUtNSA1IDIuMjQgNSA1LTIuMjQgNS01IDV6bTAtOGMtMS42NiAwLTMgMS4zNC0zIDNzMS4zNCAzIDMgMyAzLTEuMzQgMy0zLTEuMzQtMy0zLTN6Ii8+PC9zdmc+" alt="访问量">
-                    </span>
-                </div>
             </div>
         </div>
     </footer>
     
-    <!-- 不蒜子统计 -->
-    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-    
-    <script>
-        // 动态更新访问量徽章
-        document.addEventListener('DOMContentLoaded', function() {
-            // 检查不蒜子统计是否加载完成
-            var checkBusuanzi = setInterval(function() {
-                if (document.getElementById("busuanzi_value_site_pv") && 
-                    document.getElementById("busuanzi_value_site_pv").innerHTML !== "") {
-                    var count = document.getElementById("busuanzi_value_site_pv").innerHTML;
-                    var badgeUrl = "https://img.shields.io/badge/Visitors-" + count + "-4F46E5?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiA0LjVDNyA0LjUgMi43MyA3LjYxIDEgMTJjMS43MyA0LjM5IDYgNy41IDExIDcuNXM5LjI3LTMuMTEgMTEtNy41Yy0xLjczLTQuMzktNi03LjUtMTEtNy41ek0xMiAxN7MtMi43NiAwLTUtMi4yNC01LTVzMi4yNC01IDUtNSA1IDIuMjQgNSA1LTIuMjQgNS01IDV6bTAtOGMtMS42NiAwLTMgMS4zNC0zIDNzMS4zNCAzIDMgMyAzLTEuMzQgMy0zLTEuMzQtMy0zLTN6Ii8+PC9zdmc+";
-                    document.getElementById("visitor-badge").src = badgeUrl;
-                    clearInterval(checkBusuanzi);
-                }
-            }, 1000);
-        });
-    </script>
     <script src="scripts.js"></script>
 </body>
 </html>

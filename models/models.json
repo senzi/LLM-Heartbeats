@@ -29,6 +29,16 @@
         "height": 400,
         "id": "llmHeartbeat"
       }
+    },
+    {
+      "name": "GPT-4.5-Preview",
+      "path": "models/GPT-4.5-Preview",
+      "htmlFile": "heartbeat.html",
+      "element": {
+        "width": 400,
+        "height": 400,
+        "id": "gpt45HeartbeatCanvas"
+      }
     }
   ]
 }

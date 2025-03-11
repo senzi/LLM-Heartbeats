@@ -24,6 +24,8 @@ function renderModelCards(models) {
         iframe.className = 'model-frame';
         iframe.src = `${model.path}/${model.htmlFile}`;
         iframe.title = model.name;
+        iframe.setAttribute('scrolling', 'no');
+        iframe.setAttribute('frameborder', '0');
         
         const info = document.createElement('div');
         info.className = 'model-info';
@@ -74,6 +76,8 @@ async function showModelDetail(model) {
     iframe.className = 'detail-frame';
     iframe.src = `${model.path}/${model.htmlFile}`;
     iframe.title = model.name;
+    iframe.setAttribute('scrolling', 'no');
+    iframe.setAttribute('frameborder', '0');
     
     visualizationSection.appendChild(iframe);
     
