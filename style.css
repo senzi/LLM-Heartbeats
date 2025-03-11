@@ -234,8 +234,14 @@ footer a:hover::after {
     display: flex;
     flex-wrap: wrap;
     gap: 2rem;
-    justify-content: center;
+    justify-content: flex-start;
     width: 100%;
+}
+
+@media (max-width: 1800px) {
+    .models-container {
+        justify-content: center;
+    }
 }
 
 .model-card {

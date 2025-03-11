@@ -39,6 +39,16 @@
         "height": 400,
         "id": "gpt45HeartbeatCanvas"
       }
+    },
+    {
+      "name": "GPT-4o",
+      "path": "models/GPT-4o",
+      "htmlFile": "heartbeat.html",
+      "element": {
+        "width": 400,
+        "height": 400,
+        "id": "gpt4oHeartbeatCanvas"
+      }
     }
   ]
 }

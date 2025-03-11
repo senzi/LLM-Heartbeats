@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Heartbeat Visualization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #101010;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        let nodes = [];
+        let waves = [];
+        let time = 0;
+
+        function setup() {
+            canvas = createCanvas(400, 400);
+            canvas.id('gpt4oHeartbeatCanvas');
+            noStroke();
+
+            // Initialize nodes
+            for (let i = 0; i < 8; i++) {
+                nodes.push({
+                    x: width / 2 + cos(TWO_PI * i / 8) * 100,
+                    y: height / 2 + sin(TWO_PI * i / 8) * 100,
+                    size: random(10, 20),
+                    pulseSpeed: random(0.02, 0.05),
+                });
+            }
+
+            // Initialize waves
+            for (let i = 0; i < 6; i++) {
+                waves.push({
+                    offset: i * 50,
+                    amplitude: random(20, 40),
+                    frequency: random(0.01, 0.03),
+                    speed: random(0.02, 0.05),
+                });
+            }
+        }
+
+        function draw() {
+            background(16, 16, 16, 50);
+
+            // Draw waves (representing the flow of information)
+            noFill();
+            stroke(100, 200, 255, 150);
+            strokeWeight(1.5);
+            for (let i = 0; i < waves.length; i++) {
+                beginShape();
+                for (let x = 0; x < width; x++) {
+                    let y = height / 2 + sin(time * waves[i].speed + x * waves[i].frequency) * waves[i].amplitude;
+                    vertex(x, y);
+                }
+                endShape();
+            }
+
+            // Draw nodes (representing processing units)
+            for (let i = 0; i < nodes.length; i++) {
+                let node = nodes[i];
+                let pulse = sin(time * node.pulseSpeed) * 5; // Pulsation effect
+                fill(255, 100, 200, 200);
+                ellipse(node.x, node.y, node.size + pulse);
+
+                // Draw connections between nodes
+                for (let j = i + 1; j < nodes.length; j++) {
+                    let other = nodes[j];
+                    let distance = dist(node.x, node.y, other.x, other.y);
+                    stroke(150, 100, 255, map(distance, 0, 200, 200, 0)); // Fade with distance
+                    strokeWeight(map(distance, 0, 200, 2, 0.5));
+                    line(node.x, node.y, other.x, other.y);
+                }
+            }
+
+            time += 0.02; // Advance time
+        }
+    </script>
+</body>
+</html>
