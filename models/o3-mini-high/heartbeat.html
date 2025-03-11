@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LLM Heartbeat Visualization</title>
+  <style>
+    /* Center the canvas on the page */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      color: #eee;
+      font-family: sans-serif;
+    }
+    canvas {
+      border: 2px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <!-- The p5.js canvas will be injected here -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+  <script>
+    // Global setup for the canvas
+    function setup() {
+      // Strictly set to 400x400 pixels
+      createCanvas(400, 400);
+      frameRate(60);
+      angleMode(RADIANS);
+    }
+    
+    function draw() {
+      // Dark background to set a digital/space-like ambiance
+      background(15);
+      
+      // Timing for animations based on the runtime in seconds
+      let t = millis() / 1000;
+
+      // ***** Central Pulsing Heartbeat *****
+      // The center represents the core processing unit of the LLM.
+      // The pulsation rhythm is derived from a sine wave.
+      let baseRadius = 40;
+      // The pulse fluctuates with a periodic function to simulate a heart "beat."
+      let pulseRadius = baseRadius + sin(t * TWO_PI) * 20;
+      
+      noStroke();
+      fill(20, 200, 240, 150);
+      ellipse(width / 2, height / 2, pulseRadius * 2);
+      
+      // ***** Concentric Waveforms *****
+      // These waves simulate layers of processing, token flows,
+      // and dynamic modulation of attention probabilities.
+      stroke(0, 220, 160, 200);
+      strokeWeight(2);
+      noFill();
+      let waveCount = 5;
+      for (let i = 1; i <= waveCount; i++) {
+        let radius = 70 + i * 20;
+        beginShape();
+        // Create a circular waveform with subtle oscillations
+        for (let angle = 0; angle <= TWO_PI; angle += 0.1) {
+          // Variations here represent changes in internal computations
+          let r = radius + sin(angle * 4 + t * 2 + i) * 5;
+          let x = width / 2 + r * cos(angle);
+          let y = height / 2 + r * sin(angle);
+          vertex(x, y);
+        }
+        endShape(CLOSE);
+      }
+      
+      // ***** Orbiting Particles: Token Flow *****
+      // These represent individual tokens or pieces of information cycling
+      // through the system as part of processing.
+      let particleCount = 10;
+      for (let i = 0; i < particleCount; i++) {
+        let angle = t * 0.5 + TWO_PI / particleCount * i;
+        let distance = 90 + sin(t * 3 + i) * 5; // subtle variation on distance
+        let x = width / 2 + distance * cos(angle);
+        let y = height / 2 + distance * sin(angle);
+        noStroke();
+        fill(255, 100, 150, 200);
+        ellipse(x, y, 10, 10);
+      }
+      
+      // ***** Low Waveform at the Bottom *****
+      // A visible "wave" along the lower edge reflects ongoing output
+      // changes and the rhythm of the underlying thought processes.
+      stroke(240, 240, 120, 150);
+      strokeWeight(3);
+      noFill();
+      beginShape();
+      for (let x = 0; x <= width; x += 10) {
+        // Create a sine wave along the bottom that fluctuates over time
+        let wave = map(sin(TWO_PI * (x / width) + t * 3), -1, 1, 10, 50);
+        vertex(x, height - wave);
+      }
+      endShape();
+    }
+  </script>
+</body>
+</html>

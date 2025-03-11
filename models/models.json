@@ -89,6 +89,16 @@
         "height": 400,
         "id": "llmHeartbeat"
       }
+    },
+    {
+      "name": "o3-mini-high",
+      "path": "models/o3-mini-high",
+      "htmlFile": "heartbeat.html",
+      "element": {
+        "width": 400,
+        "height": 400,
+        "id": "llmHeartbeat"
+      }
     }
   ]
 }
